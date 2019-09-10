@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import os
+import shutil
 
 # シンデレラガールズカードギャラリートップページ
 CINDERELLA_CARD_MAIN = "http://imas.gamedbs.jp"
@@ -276,6 +277,41 @@ def get_all_images(page):
     """
     if page == 0:
         pass
+
+
+def integrate_files(dirs, output):
+    count = 0
+    for dir in dirs:
+        # dir/0/0.img
+        # みたいな感じになってるはず
+        char_dirs = os.listdir(dir)
+        for char_dir in char_dirs:
+            char_dir = os.path.join(dir, char_dir)
+            img_names = os.listdir(char_dir)
+            for img_name in img_names:
+                img_path = os.path.join(char_dir, img_name)
+                output_path = os.path.join(output, "{:0=5}.png".format(count))
+                shutil.copy(img_path, output_path)
+                print('copy {} to {}'.format(img_path, output_path))
+
+
+def reshape_as_trainset(trainA_dirs, trainB_dirs, train_dir):
+    if not os.path.isdir(train_dir):
+        os.mkdir(train_dir)
+        print('mkdir {}'.format(train_dir))
+    trainA_dir = os.path.join(train_dir, 'trainA')
+    trainB_dir = os.path.join(train_dir, 'trainB')
+
+    if not os.path.isdir(trainA_dir):
+        os.mkdir(trainA_dir)
+        print('mkdir {}'.format(trainA_dir))
+
+    if not os.path.isdir(trainB_dir):
+        os.mkdir(trainB_dir)
+        print('mkdir {}'.format(trainB_dir))
+
+    integrate_files(trainA_dirs, trainA_dir)
+    integrate_files(trainB_dirs, trainB_dir)
 
 
 if __name__ == '__main__':
